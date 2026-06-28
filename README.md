@@ -158,3 +158,54 @@ source install/setup.bash
 
 At this point, the build is completed and the ROS 2 workspace is ready to be used.
 
+
+### Livox SDK and ROS 2 Driver Installation
+To properly use the MID360 sensor with ROS 2 Humble, you need to install the core Livox SDK2 and then build the official ROS 2 driver.
+
+### 1. Installing the Livox SDK2
+First, download and compile the official Livox-SDK2 from its source repository. This provides the fundamental libraries required to communicate with the sensor.
+
+The following commands will clone the repository, prepare the build environment, compile using available CPU cores, and install the libraries to your system:
+
+```Bash
+cd ~
+git clone https://github.com/Livox-SDK/Livox-SDK2.git
+cd Livox-SDK2
+mkdir build && cd build
+cmake .. && make -j
+sudo make install
+```
+### 2. Downloading the Livox ROS 2 Driver
+Next, prepare a dedicated ROS 2 workspace and clone the livox_ros_driver2 repository into the src folder.
+
+```Bash
+mkdir -p ~/ws_livox/src
+cd ~/ws_livox/src
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git
+cd ~/ws_livox/src/livox_ros_driver2
+```
+### 3. Configuring the Device IP
+Before building the ROS 2 package, it is necessary to configure the network settings. If you build the package first, the default configuration file will be copied into the install folder, and subsequent changes to the src folder will be ignored.
+
+Open the MID360_config.json file using a text editor like nano:
+
+```Bash
+nano ~/ws_livox/src/livox_ros_driver2/config/MID360_config.json
+```
+Inside the file, make the following adjustments:
+
+Change all the host IP addresses to match the static IP you previously set up on your machine.
+
+Change the device IP to 192.168.1.106.
+
+Note: Be very careful not to delete any quotation marks (") or commas (,) while editing, as this will break the JSON formatting and prevent the driver from launching.
+
+### 4. Building the ROS 2 Package
+Once the configuration is correctly set, you can build the driver package. The Livox driver provides a custom shell script to handle the build process.
+
+Make sure to source your ROS 2 Humble installation first:
+
+```Bash
+source /opt/ros/humble/setup.bash
+./build.sh humble
+```
