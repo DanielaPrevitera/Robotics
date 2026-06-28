@@ -1,4 +1,7 @@
 # Robotics
+<img width="508" height="700" alt="image" src="https://github.com/user-attachments/assets/21f78b2d-8623-4143-8b83-7e34a4fc8bf4" />
+<img width="861" height="397" alt="image" src="https://github.com/user-attachments/assets/cabdf714-59dd-433d-8dab-d1f7e31d4f75" />
+
 
 ## ROS 2 Humble Installation on Ubuntu
 
@@ -615,3 +618,63 @@ Inside RViz2:
 ```
 
 The saved map should now be visible in RViz2.
+
+
+## Integration on the Mobile Robot
+
+After completing the LiDAR setup and verifying its connection, the sensor was mounted on a mobile robot, called **Robovolc**. The robot was accessed remotely through an **SSH connection**, allowing the user to control and configure the system from another computer without directly operating on the robot onboard machine. Because apparently even robots now get remote work privileges.
+
+### SSH Connection to the Robot
+
+The connection to Robovolc was established using SSH. This allows a terminal session to be opened directly on the robot computer, making it possible to launch ROS 2 nodes, configure the workspace, and run control commands remotely.
+
+A typical SSH command has the following structure:
+
+```bash
+ssh username@robot_ip_address
+```
+
+where `username` is the robot user account and `robot_ip_address` is the IP address assigned to Robovolc on the network.
+
+### Keyboard Teleoperation
+
+To manually control the robot, the ROS 2 package `teleop_twist_keyboard` was used. This package allows velocity commands to be generated from the keyboard. These commands are published as `geometry_msgs/Twist` messages, which are commonly used in ROS 2 to control mobile robots.
+
+The command used was:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/key_vel
+```
+
+### Topic Remapping
+
+By default, `teleop_twist_keyboard` publishes velocity commands on the topic:
+
+```text
+/cmd_vel
+```
+
+However, Robovolc expects velocity commands on a different topic:
+
+```text
+/key_vel
+```
+
+For this reason, a topic remapping was added to the command:
+
+```bash
+--ros-args --remap cmd_vel:=/key_vel
+```
+
+This remapping changes the output topic of the teleoperation node from `cmd_vel` to `/key_vel`. In this way, the velocity commands generated from the keyboard are sent directly to the topic used by the robot control system.
+
+### Complete Command
+
+The full command used to control Robovolc through the keyboard was:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/key_vel
+```
+
+This command starts the keyboard teleoperation node and redirects its velocity output to the correct robot control topic.
+
