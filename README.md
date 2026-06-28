@@ -158,6 +158,94 @@ source install/setup.bash
 
 At this point, the build is completed and the ROS 2 workspace is ready to be used.
 
+## LiDAR Sensor Connection and Setup
+
+To use the **Livox MID-360 LiDAR sensor**, the Ethernet connection between the computer and the sensor must be correctly configured. This step is necessary before launching the LiDAR drivers or using visualization tools such as Livox Viewer 2. Because naturally, even a sensor needs a networking ritual before doing the one job it was built for.
+
+### 1. Installing Network Tools
+
+First, the required network tools must be installed:
+
+```bash
+sudo apt install net-tools
+```
+
+These tools provide commands such as `ifconfig`, which can be used to configure the Ethernet interface manually.
+
+### 2. Identifying the Ethernet Interface
+
+Before assigning an IP address, it is necessary to identify the Ethernet interface used to connect the LiDAR sensor. This can be done with the following command:
+
+```bash
+lshw -class network
+```
+
+The command displays information about the available network interfaces. The required value is the **logical name** of the Ethernet interface connected to the sensor.
+The actual name can be different depending on the computer.
+
+### 3. Configuring the Ethernet IP Address
+
+Once the logical name of the Ethernet interface has been identified, a static IP address must be assigned to it. The LiDAR sensor works on the `192.168.1.x` network, so the computer interface can be configured with the following command:
+
+```bash
+sudo ifconfig <logical_name> 192.168.1.50
+```
+
+For example, if the Ethernet interface is called `enp3s0`, the command becomes:
+
+```bash
+sudo ifconfig enp3s0 192.168.1.50
+```
+
+This assigns the IP address `192.168.1.50` to the Ethernet port used to communicate with the LiDAR sensor.
+
+### 4. Downloading Livox Viewer 2
+
+To verify the connection and visualize the LiDAR data, **Livox Viewer 2** can be used. The software can be downloaded from the official Livox MID-360 download page:
+
+```text
+https://www.livoxtech.com/mid-360/downloads
+```
+
+The Linux version of **Livox Viewer 2** must be downloaded and extracted into a folder.
+
+### 5. Running Livox Viewer 2
+
+After extracting the package, the viewer can be launched from the terminal by moving into the extracted folder and running the startup script:
+
+```bash
+./livox_viewer_2.sh
+```
+
+If the script name is different, the command must be adapted accordingly.
+
+For example:
+
+```bash
+./<viewer_script_name>.sh
+```
+
+Once Livox Viewer 2 is launched, it can be used to check whether the LiDAR sensor is correctly detected and whether point cloud data are being received.
+
+### 6. Useful Links
+
+The following repositories and documentation pages are useful for the setup of the MID-360 LiDAR sensor and its integration with ROS 2:
+
+```text
+https://github.com/Livox-SDK/livox_ros_driver2
+```
+
+```text
+https://github.com/rajvishnu07/lio_sam_mid360?tab=readme-ov-file#readme
+```
+
+```text
+https://github.com/Livox-SDK/Livox-SDK2/blob/master/README.md
+```
+
+The first repository contains the **Livox ROS Driver 2**, which is required to publish Livox LiDAR data in ROS 2. The second repository contains the **LIO-SAM MID-360** project used in this setup. The third link provides information about the **Livox SDK2**, which is required for communication with Livox sensors.
+
+
 
 ## Livox SDK and ROS 2 Driver Installation
 To properly use the MID360 sensor with ROS 2 Humble, you need to install the core Livox SDK2 and then build the official ROS 2 driver.
