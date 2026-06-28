@@ -310,3 +310,308 @@ cd ~/ros2_ws
 source install/setup.bash
 ros2 launch lio_sam_mid360 run.launch.py
 ```
+
+## IMU Noise Analysis
+
+This section explains how to record the LiDAR IMU data, export it from a ROS 2 bag, and compute the noise statistics required for the LiDAR configuration file.
+
+The goal of this procedure is to estimate the IMU noise by analyzing the recorded acceleration and angular velocity data.
+
+---
+
+### 1. Record the IMU Data
+
+To analyze the IMU noise, record the LiDAR IMU topic for about two minutes.
+
+Run the following command:
+
+```bash
+timeout 120s ros2 bag record /livox/imu
+```
+
+This command records the `/livox/imu` topic for `120` seconds.
+
+After the recording is completed, a ROS 2 bag folder will be generated.
+
+---
+
+### 2. Export the IMU Data from the ROS 2 Bag
+
+After recording the data, open a terminal and enter the folder containing the generated ROS 2 bag.
+
+Then, copy the following script inside the bag folder:
+
+```bash
+export_imu_from_bag.py
+```
+
+Once the script is inside the bag folder, run:
+
+```bash
+python3 export_imu_from_bag.py imu_noise_bag /livox/imu imu.csv
+```
+
+Where:
+
+- `imu_noise_bag` is the name of the recorded ROS 2 bag.
+- `/livox/imu` is the IMU topic to be extracted.
+- `imu.csv` is the output CSV file containing the exported IMU data.
+
+After running this command, the IMU data will be exported into a CSV file named:
+
+```bash
+imu.csv
+```
+
+---
+
+### 3. Plot the Recorded IMU Noise
+
+To visualize the recorded IMU noise, run:
+
+```bash
+python3 plot_imu.py
+```
+
+This script plots the IMU measurements, allowing you to inspect the noise behavior graphically.
+
+---
+
+### 4. Compute IMU Noise Statistics
+
+To compute the mean and variance of the recorded IMU noise, run:
+
+```bash
+python3 stats_imu.py
+```
+
+This script calculates the statistical values of the recorded IMU data.
+
+The most important values are:
+
+- Mean
+- Variance
+
+These values can then be used to tune the LiDAR configuration file.
+
+---
+
+### 5. Update the LiDAR Parameters
+
+After computing the IMU noise statistics, insert the obtained values into the LiDAR parameter file:
+
+```bash
+params.yaml
+```
+
+The computed mean and variance can be used to configure the IMU noise parameters required by the LiDAR algorithm.
+
+This improves the consistency of the IMU model used by the system.
+
+## Saving and Visualizing a Map with RViz2
+
+This section explains how to save a map generated in RViz2 using `LIO-SAM MID360` and how to visualize it again later.
+
+> **Note**
+>
+> Replace `/home/peppo` with your actual home directory path.
+>
+> Example:
+>
+> ```bash
+> /home/<your_username>
+> ```
+
+---
+
+### 1. Save the Generated Map
+
+Before running any ROS 2 command, source both the ROS 2 installation and the workspace:
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Optionally, create a directory where the generated map will be saved:
+
+```bash
+mkdir -p /home/peppo/mappe/mappa_test
+```
+
+You can change the directory name depending on the map you want to save.
+
+Example:
+
+```bash
+mkdir -p /home/peppo/mappe/mappa_finale
+```
+
+Then, save the map by calling the `/lio_sam/save_map` service:
+
+```bash
+ros2 service call /lio_sam/save_map lio_sam_mid360/srv/SaveMap "{resolution: 0.2, destination: /home/peppo/mappe/mappa_test}"
+```
+
+Where:
+
+- `resolution: 0.2` defines the resolution of the saved map.
+- `destination` defines the folder where the map will be saved.
+
+After running the command, the map generated in RViz2 will be saved in the selected directory.
+
+The saved map should contain the following file:
+
+```bash
+GlobalMap.pcd
+```
+
+---
+
+### Important: RViz2 Configuration File
+
+Before opening the saved map, make sure that the RViz2 configuration file:
+
+```bash
+lab_map.rviz
+```
+
+is placed inside the following directory:
+
+```bash
+~/ros2_ws/src/LIO_SAM_MID360
+```
+
+If this file is available, RViz2 can be opened automatically with the correct configuration.
+
+If this file is not available, RViz2 must be configured manually by adding the required displays and topics.
+
+---
+
+### Open the Map Automatically
+
+Use this method if the `lab_map.rviz` configuration file is available.
+
+#### Terminal 1: Publish the Saved Point Cloud
+
+First, source the ROS 2 environment and the workspace:
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Then publish the saved `.pcd` map file:
+
+```bash
+ros2 run pcl_ros pcd_to_pointcloud --ros-args \
+    -p file_name:=/home/peppo/mappe/mappa_test/GlobalMap.pcd \
+    -p publish_rate:=1.0
+```
+
+Replace the `file_name` path with the actual path where your `GlobalMap.pcd` file is stored.
+
+Example:
+
+```bash
+ros2 run pcl_ros pcd_to_pointcloud --ros-args \
+    -p file_name:=/home/peppo/mappe/mappa_finale/GlobalMap.pcd \
+    -p publish_rate:=1.0
+```
+
+This command publishes the point cloud on the following topic:
+
+```bash
+/cloud_pcd
+```
+
+You can verify that the topic exists with:
+
+```bash
+ros2 topic list | grep cloud
+```
+
+#### Terminal 2: Open RViz2 with the Configuration File
+
+Run:
+
+```bash
+rviz2 -d /home/peppo/ros2_ws/src/LIO_SAM_MID360/lab_map.rviz
+```
+
+RViz2 will open with the correct configuration already loaded.
+
+---
+
+### Open the Map Manually
+
+Use this method only if the `lab_map.rviz` configuration file is not available.
+
+#### Terminal 1: Publish the Saved Point Cloud
+
+First, source the ROS 2 environment and the workspace:
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+source ~/ros2_ws/install/setup.bash
+```
+
+Then publish the saved `.pcd` map file:
+
+```bash
+ros2 run pcl_ros pcd_to_pointcloud --ros-args \
+    -p file_name:=/home/peppo/mappe/mappa_test/GlobalMap.pcd \
+    -p publish_rate:=1.0
+```
+
+Or, for another saved map:
+
+```bash
+ros2 run pcl_ros pcd_to_pointcloud --ros-args \
+    -p file_name:=/home/peppo/mappe/mappa_test2/GlobalMap.pcd \
+    -p publish_rate:=1.0
+```
+
+The map will be published on:
+
+```bash
+/cloud_pcd
+```
+
+You can check that the topic is available with:
+
+```bash
+ros2 topic list | grep cloud
+```
+
+#### Terminal 2: Publish a Static Transform
+
+Run the following command:
+
+```bash
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map base_link
+```
+
+This publishes a static transform between the `map` frame and the `base_link` frame.
+
+This step is useful if RViz2 has frame-related issues when displaying the map.
+
+#### Terminal 3: Open and Configure RViz2
+
+Start RViz2:
+
+```bash
+rviz2
+```
+
+Inside RViz2:
+
+1. Click **Add**.
+2. Select **PointCloud2**.
+3. Set the topic to:
+
+```bash
+/cloud_pcd
+```
+
+The saved map should now be visible in RViz2.
