@@ -159,7 +159,7 @@ source install/setup.bash
 At this point, the build is completed and the ROS 2 workspace is ready to be used.
 
 
-### Livox SDK and ROS 2 Driver Installation
+## Livox SDK and ROS 2 Driver Installation
 To properly use the MID360 sensor with ROS 2 Humble, you need to install the core Livox SDK2 and then build the official ROS 2 driver.
 
 ### 1. Installing the Livox SDK2
