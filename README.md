@@ -297,3 +297,16 @@ Make sure to source your ROS 2 Humble installation first:
 source /opt/ros/humble/setup.bash
 ./build.sh humble
 ```
+### 5. Launching the repository
+In one terminal, launch the livox driver:
+```Bash
+cd ~/ws_livox
+source install/setup.bash
+ros2 launch livox_ros_driver2 rviz_MID360_launch.py
+```
+In another terminal, launch the repository:
+```Bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 launch lio_sam_mid360 run.launch.py
+```
