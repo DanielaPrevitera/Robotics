@@ -80,4 +80,81 @@ To avoid executing this command manually every time a new terminal is opened, it
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
+## ROS 2 Workspace Setup
+
+It is necessary to set up the **ROS 2 workspace** by referring to the official ROS 2 workspace creation guide:
+
+```text
+https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html
+```
+
+Although the guide refers to ROS 2 Foxy, the same workspace structure can be used for ROS 2 Humble, with the appropriate environment setup commands adapted to the installed ROS 2 distribution.
+
+### 1. Installing the Required Dependencies
+
+Before creating the workspace, it is important to make sure that all the required dependencies are installed. In particular, `colcon` is required to build ROS 2 workspaces and may not be installed by default. Apparently, even compiling needs its own ceremony.
+
+The following command installs the common `colcon` extensions:
+
+```bash
+sudo apt install python3-colcon-common-extensions
+```
+
+Further information about `colcon` can be found in the official ROS 2 tutorial:
+
+```text
+https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html
+```
+
+### 2. Installing GTSAM
+
+The project also requires **GTSAM**. To install it, the official GTSAM repository must first be added.
+
+#### 2.1 Adding the GTSAM Repository
+
+```bash
+sudo add-apt-repository ppa:borglab/gtsam-release-4.1
+```
+
+#### 2.2 Installing GTSAM
+
+After adding the repository, the package list must be updated and the required GTSAM packages can be installed:
+
+```bash
+sudo apt update
+sudo apt install libgtsam-dev libgtsam-unstable-dev
+```
+
+### 3. Creating the ROS 2 Workspace
+
+The ROS 2 workspace is then created using the standard workspace structure. The `src` folder is used to store the source code of the ROS 2 packages.
+
+```bash
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws
+```
+
+### 4. Cloning the GitHub Repository
+
+The project repository is cloned inside the `src` directory of the workspace. This step is also required by the project repository instructions.
+
+```bash
+git clone https://github.com/rajvishnu07/lio_sam_mid360 src/LIO_SAM_MID360
+```
+
+### 5. Building and Sourcing the Workspace
+
+Once the repository has been cloned, the workspace can be built using `colcon`:
+
+```bash
+colcon build --symlink-install
+```
+
+After the build process is completed, the workspace must be sourced:
+
+```bash
+source install/setup.bash
+```
+
+At this point, the build is completed and the ROS 2 workspace is ready to be used.
 
