@@ -81,22 +81,3 @@ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Installation Verification
-
-The installation can be verified by running two example ROS 2 nodes. In the first terminal, the `talker` node is started:
-
-```bash
-ros2 run demo_nodes_cpp talker
-```
-
-In a second terminal, the `listener` node is started:
-
-```bash
-ros2 run demo_nodes_py listener
-```
-
-If the listener receives the messages published by the talker, the installation has been completed successfully.
-
-### Summary
-
-In this project, **ROS 2 Humble** was installed on **Ubuntu 22.04** using the official Debian packages. The installation procedure consisted of configuring the system locale, enabling the required Ubuntu repositories, adding the official ROS 2 repository and GPG key, and installing the `ros-humble-desktop` package. Finally, the ROS 2 environment was configured by sourcing the setup file, and the installation was tested using the standard `talker` and `listener` example nodes.
